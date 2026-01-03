@@ -1,0 +1,26 @@
+{
+    "name": "rs.kruzic.game-sdk",
+    "version": "1.0.0",
+    "displayName": "Kruzic Game SDK",
+    "description": "SDK za integraciju igara sa Kruzic platformom. Omogucava pristup korisnickim podacima i cuvanje podataka igre.",
+    "unity": "2020.3",
+    "documentationUrl": "https://github.com/kruzic-rs/game-sdk-unity",
+    "changelogUrl": "https://github.com/kruzic-rs/game-sdk-unity/blob/main/CHANGELOG.md",
+    "licensesUrl": "https://github.com/kruzic-rs/game-sdk-unity/blob/main/LICENSE",
+    "keywords": [
+        "kruzic",
+        "sdk",
+        "webgl",
+        "games",
+        "platform"
+    ],
+    "author": {
+        "name": "Kruzic",
+        "email": "contact@kruzic.rs",
+        "url": "https://kruzic.rs"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kruzic-rs/game-sdk-unity.git"
+    }
+}
