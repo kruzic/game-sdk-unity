@@ -13,7 +13,7 @@ SDK za integraciju Unity igara sa [Kružić](https://kruzic.rs) platformom.
 
 1. Otvori **Window > Package Manager**
 2. Klikni **+** dugme i izaberi **Add package from git URL...**
-3. Unesi: `https://github.com/kruzic-rs/game-sdk-unity.git`
+3. Unesi: `https://github.com/kruzic/game-sdk-unity.git`
 
 ### Opcija 2: Ručna instalacija
 
