@@ -1,0 +1,18 @@
+{
+    "name": "Kruzic.GameSDK.Editor",
+    "rootNamespace": "Kruzic.GameSDK.Editor",
+    "references": [
+        "GUID:d75c482b194fb4740aa46d2e5e7c663a"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

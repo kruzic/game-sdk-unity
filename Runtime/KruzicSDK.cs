@@ -41,7 +41,12 @@ namespace Kruzic.GameSDK
 #else
         private static void KruzicSendMessage(string type, int requestId, string payload)
         {
+#if UNITY_EDITOR
+            // Ako smo u Editoru koristi mock server
+            Editor.KruzicMockServer.SendMessage(type, requestId, payload);
+#else
             Logger.Log($"[Mock] SendMessage: {type}, {requestId}, {payload}");
+#endif
         }
 
         private static void KruzicNotifyReady()
@@ -406,6 +411,11 @@ namespace Kruzic.GameSDK
 
             _instance = this;
             DontDestroyOnLoad(gameObject);
+
+#if UNITY_EDITOR
+            // Initialize mock server in Editor
+            Editor.KruzicMockServer.Init();
+#endif
         }
 
         private void OnDestroy()
