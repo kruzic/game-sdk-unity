@@ -2,7 +2,7 @@
     "name": "Kruzic.GameSDK.Editor",
     "rootNamespace": "Kruzic.GameSDK.Editor",
     "references": [
-        "GUID:d75c482b194fb4740aa46d2e5e7c663a"
+        "Kruzic.GameSDK"
     ],
     "includePlatforms": [
         "Editor"
