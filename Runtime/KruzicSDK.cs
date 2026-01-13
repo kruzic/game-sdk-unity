@@ -52,7 +52,25 @@ namespace Kruzic.GameSDK
             }
             else
             {
-                Logger.Log($"[Mock] SendMessage: {type}, {requestId}, {payload}");
+#if UNITY_EDITOR
+                var mockServerType = System.Type.GetType("Kruzic.GameSDK.Editor.KruzicMockServer, Kruzic.GameSDK.Editor");
+                if (mockServerType != null)
+                {
+                    var initMethod = mockServerType.GetMethod("Init", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                    if (initMethod != null)
+                    {
+                        initMethod.Invoke(null, null);
+
+                        // Pokušaj ponovo
+                        if (MockServerSendMessage != null)
+                        {
+                            MockServerSendMessage(type, requestId, payload);
+                            return;
+                        }
+                    }
+                }
+#endif
+                Logger.Log($"[Mock] SendMessage: {type}, {requestId}, {payload} (Mock server not initialized)");
             }
         }
 
@@ -156,7 +174,6 @@ namespace Kruzic.GameSDK
         /// </summary>
         public void IsSignedIn(Action<bool> callback)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
             SendRequest("IS_USER_SIGNED_IN", null, (response) =>
             {
                 if (response.success)
@@ -170,10 +187,6 @@ namespace Kruzic.GameSDK
                     callback?.Invoke(false);
                 }
             });
-#else
-            // In editor, simulate signed in user
-            callback?.Invoke(true);
-#endif
         }
 
         /// <summary>
@@ -181,7 +194,6 @@ namespace Kruzic.GameSDK
         /// </summary>
         public void GetUserDetails(Action<UserDetails> callback)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
             SendRequest("GET_USER_DETAILS", null, (response) =>
             {
                 if (response.success && !string.IsNullOrEmpty(response.data))
@@ -198,15 +210,6 @@ namespace Kruzic.GameSDK
                     callback?.Invoke(null);
                 }
             });
-#else
-            // In editor, return mock user
-            callback?.Invoke(new UserDetails
-            {
-                id = "dev-user",
-                name = "Dev User",
-                image = null
-            });
-#endif
         }
 
         /// <summary>
@@ -214,7 +217,6 @@ namespace Kruzic.GameSDK
         /// </summary>
         public void GetUserId(Action<string> callback)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
             SendRequest("GET_USER_ID", null, (response) =>
             {
                 if (response.success && !string.IsNullOrEmpty(response.data))
@@ -231,9 +233,6 @@ namespace Kruzic.GameSDK
                     callback?.Invoke(null);
                 }
             });
-#else
-            callback?.Invoke("dev-user");
-#endif
         }
 
         /// <summary>
@@ -241,7 +240,6 @@ namespace Kruzic.GameSDK
         /// </summary>
         public void GetData<T>(string key, Action<T> callback) where T : class
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
             var payload = new GetDataPayload { key = key };
             SendRequest("GET_USER_DATA", payload, (response) =>
             {
@@ -268,21 +266,6 @@ namespace Kruzic.GameSDK
                 }
                 callback?.Invoke(null);
             });
-#else
-            // In editor, use PlayerPrefs
-            string json = PlayerPrefs.GetString($"kruzic_dev_{key}", null);
-            if (!string.IsNullOrEmpty(json))
-            {
-                try
-                {
-                    var data = JsonUtility.FromJson<T>(json);
-                    callback?.Invoke(data);
-                    return;
-                }
-                catch { }
-            }
-            callback?.Invoke(null);
-#endif
         }
 
         /// <summary>
@@ -290,7 +273,6 @@ namespace Kruzic.GameSDK
         /// </summary>
         public void SetData<T>(string key, T value, Action<bool> callback = null)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
             string valueJson = JsonUtility.ToJson(value);
             var payload = new SetDataPayload { key = key, value = valueJson };
             SendRequest("SET_USER_DATA", payload, (response) =>
@@ -301,13 +283,6 @@ namespace Kruzic.GameSDK
                 }
                 callback?.Invoke(response.success);
             });
-#else
-            // In editor, use PlayerPrefs
-            string json = JsonUtility.ToJson(value);
-            PlayerPrefs.SetString($"kruzic_dev_{key}", json);
-            PlayerPrefs.Save();
-            callback?.Invoke(true);
-#endif
         }
 
         /// <summary>
@@ -315,7 +290,6 @@ namespace Kruzic.GameSDK
         /// </summary>
         public void DeleteData(string key, Action<bool> callback = null)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
             var payload = new GetDataPayload { key = key };
             SendRequest("DELETE_USER_DATA", payload, (response) =>
             {
@@ -325,11 +299,6 @@ namespace Kruzic.GameSDK
                 }
                 callback?.Invoke(response.success);
             });
-#else
-            PlayerPrefs.DeleteKey($"kruzic_dev_{key}");
-            PlayerPrefs.Save();
-            callback?.Invoke(true);
-#endif
         }
 
         /// <summary>
@@ -337,7 +306,6 @@ namespace Kruzic.GameSDK
         /// </summary>
         public void ListData(Action<string[]> callback)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
             SendRequest("LIST_USER_DATA", null, (response) =>
             {
                 if (response.success && !string.IsNullOrEmpty(response.data))
@@ -359,10 +327,6 @@ namespace Kruzic.GameSDK
                 }
                 callback?.Invoke(new string[0]);
             });
-#else
-            // In editor, we can't easily list PlayerPrefs keys
-            callback?.Invoke(new string[0]);
-#endif
         }
 
         #endregion

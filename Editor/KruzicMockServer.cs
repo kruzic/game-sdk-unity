@@ -90,7 +90,8 @@ namespace Kruzic.GameSDK.Editor
 
         private static void LoadMockUserSettings()
         {
-            isUserSignedIn = PlayerPrefs.GetInt(MOCK_LOGGED_IN_KEY, 1) == 1;
+            int loggedInValue = PlayerPrefs.GetInt(MOCK_LOGGED_IN_KEY, 1);
+            isUserSignedIn = loggedInValue == 1;
             userId = PlayerPrefs.GetString(MOCK_USER_ID_KEY, "dev-user");
             username = PlayerPrefs.GetString(MOCK_USERNAME_KEY, "Dev User");
             avatar = PlayerPrefs.GetString(MOCK_AVATAR_KEY, "");
@@ -99,6 +100,8 @@ namespace Kruzic.GameSDK.Editor
             {
                 avatar = null;
             }
+
+            Debug.Log($"[Kruzic SDK Mock] LoadMockUserSettings: PlayerPrefs value={loggedInValue}, isUserSignedIn={isUserSignedIn}");
         }
 
         public static void SendMessage(string type, int requestId, string payload)

@@ -249,11 +249,14 @@ namespace Kruzic.GameSDK.Editor
 
         private void SaveMockUserSettings()
         {
-            PlayerPrefs.SetInt(KruzicMockServer.MOCK_LOGGED_IN_KEY, mockUserSignedIn ? 1 : 0);
+            int valueToSave = mockUserSignedIn ? 1 : 0;
+            PlayerPrefs.SetInt(KruzicMockServer.MOCK_LOGGED_IN_KEY, valueToSave);
             PlayerPrefs.SetString(KruzicMockServer.MOCK_USER_ID_KEY, mockUserId);
             PlayerPrefs.SetString(KruzicMockServer.MOCK_USERNAME_KEY, mockUsername);
             PlayerPrefs.SetString(KruzicMockServer.MOCK_AVATAR_KEY, mockAvatar);
             PlayerPrefs.Save();
+
+            Debug.Log($"[Kruzic Mock Window] SaveMockUserSettings: Saving mockUserSignedIn={mockUserSignedIn}, value={valueToSave}");
 
             KruzicMockServer.UpdateMockUser(mockUserSignedIn, mockUserId, mockUsername, mockAvatar);
         }
