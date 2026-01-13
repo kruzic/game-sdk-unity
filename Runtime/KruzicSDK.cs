@@ -29,6 +29,10 @@ namespace Kruzic.GameSDK
 
         #region JavaScript Interop
 
+        // Delegate za mock server (koristi Editor da se registruje)
+        public delegate void MockServerMessageDelegate(string type, int requestId, string payload);
+        public static MockServerMessageDelegate MockServerSendMessage;
+
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern void KruzicSendMessage(string type, int requestId, string payload);
@@ -41,12 +45,15 @@ namespace Kruzic.GameSDK
 #else
         private static void KruzicSendMessage(string type, int requestId, string payload)
         {
-#if UNITY_EDITOR
-            // Ako smo u Editoru koristi mock server
-            Kruzic.GameSDK.Editor.KruzicMockServer.SendMessage(type, requestId, payload);
-#else
-            Logger.Log($"[Mock] SendMessage: {type}, {requestId}, {payload}");
-#endif
+            // U Editoru koristi mock server ako je registrovan
+            if (MockServerSendMessage != null)
+            {
+                MockServerSendMessage(type, requestId, payload);
+            }
+            else
+            {
+                Logger.Log($"[Mock] SendMessage: {type}, {requestId}, {payload}");
+            }
         }
 
         private static void KruzicNotifyReady()
@@ -411,11 +418,6 @@ namespace Kruzic.GameSDK
 
             _instance = this;
             DontDestroyOnLoad(gameObject);
-
-#if UNITY_EDITOR
-            // Initialize mock server in Editor
-            Kruzic.GameSDK.Editor.KruzicMockServer.Init();
-#endif
         }
 
         private void OnDestroy()

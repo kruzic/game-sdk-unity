@@ -2,6 +2,7 @@
 using Kruzic.GameSDK;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 namespace Kruzic.GameSDK.Editor
 {
@@ -9,6 +10,7 @@ namespace Kruzic.GameSDK.Editor
     /// Mock server za testiranje Kruzic SDK-a u Unity Editoru bez WebGL build-a.
     /// Simulira odgovore Kruzic platforme korišćenjem PlayerPrefs za skladištenje.
     /// </summary>
+    [InitializeOnLoad]
     public static class KruzicMockServer
     {
         public const string MOCK_DATA_KEY = "kruzicMockData";
@@ -25,6 +27,12 @@ namespace Kruzic.GameSDK.Editor
 
         private static bool isInitialized = false;
 
+        // Statički konstruktor - poziva se automatski kada se Editor učita
+        static KruzicMockServer()
+        {
+            Init();
+        }
+
         public static void Init()
         {
             if (isInitialized) return;
@@ -32,6 +40,10 @@ namespace Kruzic.GameSDK.Editor
 
             LoadMockData();
             LoadMockUserSettings();
+
+            // Registruj mock server sa KruzicSDK
+            KruzicSDK.MockServerSendMessage = SendMessage;
+
             Debug.Log("[Kruzic SDK] Mock server initialized");
         }
 
