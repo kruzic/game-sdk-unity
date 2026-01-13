@@ -43,7 +43,15 @@ var KruzicSDKPlugin = {
                 }
 
                 try {
-                    var responseJson = JSON.stringify(data);
+                    // Unity expects data field as JSON string, not object
+                    var responseForUnity = {
+                        type: data.type,
+                        requestId: data.requestId,
+                        success: data.success,
+                        data: data.data ? JSON.stringify(data.data) : null,
+                        error: data.error
+                    };
+                    var responseJson = JSON.stringify(responseForUnity);
                     unity.SendMessage('KruzicSDK', 'OnMessageReceived', responseJson);
                 } catch (e) {
                     console.error('[Kruzic SDK] Error forwarding response:', e);

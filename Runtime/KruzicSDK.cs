@@ -128,7 +128,19 @@ namespace Kruzic.GameSDK
         {
             try
             {
+                if (string.IsNullOrEmpty(jsonResponse))
+                {
+                    Logger.Error("Received empty response");
+                    return;
+                }
+
                 var response = JsonUtility.FromJson<SDKResponse>(jsonResponse);
+
+                if (response == null)
+                {
+                    Logger.Error($"Failed to parse response JSON: {jsonResponse}");
+                    return;
+                }
 
                 if (_pendingRequests.ContainsKey(response.requestId))
                 {
@@ -139,7 +151,7 @@ namespace Kruzic.GameSDK
             }
             catch (Exception e)
             {
-                Logger.Error($"Failed to parse response: {e.Message}");
+                Logger.Error($"Failed to parse response: {e.Message}. JSON: {jsonResponse}");
             }
         }
 
