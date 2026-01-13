@@ -259,17 +259,14 @@ namespace Kruzic.GameSDK
                 {
                     try
                     {
-                        var wrapper = JsonUtility.FromJson<DataWrapper>(response.data);
-                        if (!string.IsNullOrEmpty(wrapper.value))
-                        {
-                            var data = JsonUtility.FromJson<T>(wrapper.value);
-                            callback?.Invoke(data);
-                            return;
-                        }
+                        // Parse the wrapper object from platform response
+                        var data = JsonUtility.FromJson<T>(response.data);
+                        callback?.Invoke(data);
+                        return;
                     }
                     catch (Exception e)
                     {
-                        Logger.Error($"Failed to parse data: {e.Message}");
+                        Logger.Error($"Failed to parse data: {e.Message}. JSON: {response.data}");
                     }
                 }
                 else if (!response.success)
