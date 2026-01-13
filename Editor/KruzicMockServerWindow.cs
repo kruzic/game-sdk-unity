@@ -180,11 +180,6 @@ namespace Kruzic.GameSDK.Editor
                 }
             }
 
-            if (GUILayout.Button("Dodaj Primer Podatke"))
-            {
-                AddSampleData();
-            }
-
             EditorGUILayout.EndHorizontal();
         }
 
@@ -214,43 +209,6 @@ namespace Kruzic.GameSDK.Editor
             // Clear inputs
             newKey = "";
             newValue = "";
-        }
-
-        private void AddSampleData()
-        {
-            var samples = new List<MockDataEntry>
-            {
-                new MockDataEntry
-                {
-                    key = "progress",
-                    value = "{\"level\":5,\"experience\":1250,\"coins\":500}"
-                },
-                new MockDataEntry
-                {
-                    key = "highscore",
-                    value = "9999"
-                },
-                new MockDataEntry
-                {
-                    key = "score_767502",
-                    value = "5000"
-                },
-                new MockDataEntry
-                {
-                    key = "skin",
-                    value = "{\"Body\":\"Default\",\"Primary\":{\"r\":1,\"g\":0,\"b\":0},\"Secondary\":{\"r\":1,\"g\":1,\"b\":1},\"LiveryIndex\":0}"
-                }
-            };
-
-            foreach (var sample in samples)
-            {
-                if (!dataEntries.Exists(e => e.key == sample.key))
-                {
-                    dataEntries.Add(sample);
-                }
-            }
-
-            SaveMockData();
         }
 
         private void LoadMockData()

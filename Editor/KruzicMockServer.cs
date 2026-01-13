@@ -54,6 +54,8 @@ namespace Kruzic.GameSDK.Editor
             {
                 mockData[entry.key] = entry;
             }
+
+            Debug.Log($"[Kruzic SDK Mock] Data updated: {mockData.Count} entries");
         }
 
         public static void UpdateMockUser(bool signedIn, string id, string name, string avatarUrl)
@@ -62,6 +64,8 @@ namespace Kruzic.GameSDK.Editor
             userId = id;
             username = name;
             avatar = avatarUrl;
+
+            Debug.Log($"[Kruzic SDK Mock] User settings updated: SignedIn={signedIn}, ID={id}, Name={name}");
         }
 
         private static void LoadMockData()
@@ -156,12 +160,19 @@ namespace Kruzic.GameSDK.Editor
 
         private static string HandleIsUserSignedIn()
         {
+            // Reload from PlayerPrefs to get latest value
+            LoadMockUserSettings();
+
             var response = new SignedInResponse { signedIn = isUserSignedIn };
+            Debug.Log($"[Kruzic SDK Mock] IsUserSignedIn: {isUserSignedIn}");
             return JsonUtility.ToJson(response);
         }
 
         private static string HandleGetUserId(out bool success, out string error)
         {
+            // Reload from PlayerPrefs to get latest value
+            LoadMockUserSettings();
+
             success = true;
             error = null;
 
@@ -178,6 +189,9 @@ namespace Kruzic.GameSDK.Editor
 
         private static string HandleGetUserDetails(out bool success, out string error)
         {
+            // Reload from PlayerPrefs to get latest value
+            LoadMockUserSettings();
+
             success = true;
             error = null;
 
@@ -203,6 +217,10 @@ namespace Kruzic.GameSDK.Editor
             success = true;
             error = null;
 
+            // Reload settings to ensure we have latest values
+            LoadMockUserSettings();
+            LoadMockData();
+
             if (!isUserSignedIn)
             {
                 success = false;
@@ -215,9 +233,11 @@ namespace Kruzic.GameSDK.Editor
             if (mockData.TryGetValue(request.key, out MockDataEntry entry))
             {
                 var wrapper = new DataWrapper { value = entry.value };
+                Debug.Log($"[Kruzic SDK Mock] GetData '{request.key}': {entry.value}");
                 return JsonUtility.ToJson(wrapper);
             }
 
+            Debug.Log($"[Kruzic SDK Mock] GetData '{request.key}': not found");
             // Return null if key not found (SDK handles this)
             return null;
         }
@@ -226,6 +246,9 @@ namespace Kruzic.GameSDK.Editor
         {
             success = true;
             error = null;
+
+            // Reload settings to ensure we have latest values
+            LoadMockUserSettings();
 
             if (!isUserSignedIn)
             {
@@ -245,11 +268,17 @@ namespace Kruzic.GameSDK.Editor
             mockData[request.key] = entry;
             SaveMockDataToPrefs();
 
+            Debug.Log($"[Kruzic SDK Mock] SetData '{request.key}': {request.value}");
+
             return JsonUtility.ToJson(new { success = true });
         }
 
         private static string HandleListUserData(out bool success, out string error)
         {
+            // Reload settings to ensure we have latest values
+            LoadMockUserSettings();
+            LoadMockData();
+
             success = true;
             error = null;
 
@@ -267,6 +296,10 @@ namespace Kruzic.GameSDK.Editor
 
         private static string HandleDeleteUserData(string payload, out bool success, out string error)
         {
+            // Reload settings to ensure we have latest values
+            LoadMockUserSettings();
+            LoadMockData();
+
             success = true;
             error = null;
 
@@ -283,6 +316,7 @@ namespace Kruzic.GameSDK.Editor
             {
                 mockData.Remove(request.key);
                 SaveMockDataToPrefs();
+                Debug.Log($"[Kruzic SDK Mock] DeleteData '{request.key}': deleted");
                 return JsonUtility.ToJson(new { success = true });
             }
 
