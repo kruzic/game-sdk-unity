@@ -338,6 +338,109 @@ namespace Kruzic.GameSDK
             });
         }
 
+        /// <summary>
+        /// Atomski inkrementira numeričku vrednost za trenutnog korisnika.
+        /// </summary>
+        public void IncrementData(string key, float delta = 1f, Action<bool> callback = null)
+        {
+            var payload = new IncrementDataPayload { key = key, delta = delta };
+            SendRequest("INCREMENT_DATA", payload, (response) =>
+            {
+                if (!response.success)
+                {
+                    Logger.Error($"IncrementData failed: {response.error}");
+                }
+                callback?.Invoke(response.success);
+            });
+        }
+
+        /// <summary>
+        /// Vraća šemu podataka za ovu igru.
+        /// Vraća null ako šema nije definisana.
+        /// </summary>
+        public void GetDataSchema(Action<SchemaField[]> callback)
+        {
+            SendRequest("GET_DATA_SCHEMA", null, (response) =>
+            {
+                if (response.success && !string.IsNullOrEmpty(response.data))
+                {
+                    try
+                    {
+                        var wrapper = JsonUtility.FromJson<SchemaFieldListWrapper>("{\"fields\":" + response.data + "}");
+                        callback?.Invoke(wrapper.fields);
+                        return;
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error($"Failed to parse schema: {e.Message}");
+                    }
+                }
+                else if (!response.success)
+                {
+                    Logger.Error($"GetDataSchema failed: {response.error}");
+                }
+                callback?.Invoke(null);
+            });
+        }
+
+        /// <summary>
+        /// Vraća leaderboard za dato polje.
+        /// </summary>
+        public void GetLeaderboard(string field, Action<LeaderboardResult> callback, int limit = 50, int offset = 0)
+        {
+            var payload = new GetLeaderboardPayload { field = field, limit = limit, offset = offset };
+            SendRequest("GET_LEADERBOARD", payload, (response) =>
+            {
+                if (response.success && !string.IsNullOrEmpty(response.data))
+                {
+                    try
+                    {
+                        var result = JsonUtility.FromJson<LeaderboardResult>(response.data);
+                        callback?.Invoke(result);
+                        return;
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error($"Failed to parse leaderboard: {e.Message}");
+                    }
+                }
+                else if (!response.success)
+                {
+                    Logger.Error($"GetLeaderboard failed: {response.error}");
+                }
+                callback?.Invoke(null);
+            });
+        }
+
+        /// <summary>
+        /// Vraća rang trenutnog korisnika za dato leaderboard polje.
+        /// </summary>
+        public void GetMyRank(string field, Action<UserRankResult> callback)
+        {
+            var payload = new GetMyRankPayload { field = field };
+            SendRequest("GET_MY_RANK", payload, (response) =>
+            {
+                if (response.success && !string.IsNullOrEmpty(response.data))
+                {
+                    try
+                    {
+                        var result = JsonUtility.FromJson<UserRankResult>(response.data);
+                        callback?.Invoke(result);
+                        return;
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error($"Failed to parse rank: {e.Message}");
+                    }
+                }
+                else if (!response.success)
+                {
+                    Logger.Error($"GetMyRank failed: {response.error}");
+                }
+                callback?.Invoke(null);
+            });
+        }
+
         #endregion
 
         #region Helper Methods
@@ -465,6 +568,81 @@ namespace Kruzic.GameSDK
     internal class HighScoreData
     {
         public int score;
+    }
+
+    [Serializable]
+    internal class IncrementDataPayload
+    {
+        public string key;
+        public float delta;
+    }
+
+    [Serializable]
+    internal class GetLeaderboardPayload
+    {
+        public string field;
+        public int limit;
+        public int offset;
+    }
+
+    [Serializable]
+    internal class GetMyRankPayload
+    {
+        public string field;
+    }
+
+    [Serializable]
+    public class SchemaField
+    {
+        public string apiName;
+        public string type;
+        public bool clientRead;
+        public bool clientWrite;
+    }
+
+    [Serializable]
+    internal class SchemaFieldListWrapper
+    {
+        public SchemaField[] fields;
+    }
+
+    [Serializable]
+    public class LeaderboardEntry
+    {
+        public int rank;
+        public string userId;
+        public string username;
+        public string tag;
+        public string name;
+        public string image;
+        public float value;
+        public string formattedValue;
+    }
+
+    [Serializable]
+    public class LeaderboardFieldInfo
+    {
+        public string apiName;
+        public string displayName;
+        public string displayTemplate;
+        public string leaderboardSort;
+    }
+
+    [Serializable]
+    public class LeaderboardResult
+    {
+        public LeaderboardEntry[] entries;
+        public int total;
+        public UserRankResult userRank;
+        public LeaderboardFieldInfo fieldInfo;
+    }
+
+    [Serializable]
+    public class UserRankResult
+    {
+        public int rank;
+        public float value;
+        public string formattedValue;
     }
 
     #endregion
